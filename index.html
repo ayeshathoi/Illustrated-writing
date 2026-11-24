@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Story Shelf</title>
+  <meta name="description" content="Illustrated storybooks and comics to read page by page.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="site-header wrap">
+    <div class="hero-card">
+      <span class="eyebrow">Read along</span>
+      <h1 class="site-title" id="site-title">The Story Shelf</h1>
+      <p class="site-tagline" id="site-tagline">Illustrated storybooks &amp; comics</p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <nav class="filters" aria-label="Filter books">
+      <button class="chip" data-filter="all" aria-pressed="true">Everything</button>
+      <button class="chip" data-filter="storybook" aria-pressed="false">Storybooks</button>
+      <button class="chip" data-filter="comic" aria-pressed="false">Comics</button>
+    </nav>
+    <section class="shelf" id="shelf" aria-live="polite"></section>
+    <div class="empty" id="empty" hidden>
+      <div class="art" aria-hidden="true">📚</div>
+      <p id="empty-text">The shelf is empty for now. New stories are on their way!</p>
+    </div>
+  </main>
+
+  <footer class="wrap site-footer">
+    <span id="footer-name">The Story Shelf</span>
+    <span>Tap a cover to start reading</span>
+  </footer>
+
+  <script src="assets/sky.js"></script>
+  <script src="assets/library.js"></script>
+</body>
+</html>

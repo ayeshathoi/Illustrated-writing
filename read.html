@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Reading</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body class="reader">
+  <header class="reader-bar">
+    <a class="icon-btn" href="index.html" aria-label="Back to the library" title="Library">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <div class="title">
+      <h1 id="book-title">Loading…</h1>
+      <div class="sub" id="book-sub"></div>
+    </div>
+    <button class="icon-btn" id="view-btn" aria-label="Show one page at a time" title="One page / two pages">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 5h8v14H3zM13 5h8v14h-8z"/></svg>
+    </button>
+    <button class="icon-btn" id="fs-btn" aria-label="Full screen" title="Full screen (F)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+    </button>
+  </header>
+
+  <main class="stage" id="stage">
+    <button class="nav-arrow prev" id="arrow-left" aria-label="Previous page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="book" id="book" hidden>
+      <div class="page left blank"><img alt=""></div>
+      <div class="page right blank"><img alt=""></div>
+      <div class="leaf" id="leaf">
+        <div class="face front"><img alt=""><div class="shade"></div></div>
+        <div class="face back"><img alt=""><div class="shade"></div></div>
+      </div>
+    </div>
+    <div class="reader-msg" id="msg" hidden></div>
+    <button class="nav-arrow next" id="arrow-right" aria-label="Next page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+    <div class="reader-hint" id="hint">Tap the page edges, swipe, or use ← → keys</div>
+
+    <div class="end-card" id="end" hidden>
+      <div>
+        <h2>The End</h2>
+        <p id="end-sub">Thank you for reading.</p>
+        <div class="actions">
+          <button class="btn primary" id="again-btn">Read again</button>
+          <a class="btn" href="index.html">More stories</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="reader-foot">
+    <input type="range" class="scrub" id="scrub" min="0" max="0" value="0" aria-label="Jump to page">
+    <span class="count" id="count"></span>
+  </footer>
+
+  <script src="assets/sky.js"></script>
+  <script src="assets/reader.js"></script>
+</body>
+</html>
