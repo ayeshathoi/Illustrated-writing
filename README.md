@@ -1,4 +1,4 @@
-# Fables ✨
+# Thoithoi’s Tales ✨
 
 Illustrated storybooks and comics by Ayesha Binte Mostofa. Readers open a book and turn the pages one by one, like a real book.
 

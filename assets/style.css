@@ -1,18 +1,20 @@
 /* ------------------------------------------------------------------ tokens */
 :root {
-  --paper: #fdf6f8;
-  --paper-2: #f3e8f1;
-  --card: rgb(255 255 255 / .62);
-  --ink: #3b2f4a;
-  --ink-soft: #7d6f8c;
-  --line: rgb(160 130 180 / .25);
-  --accent: #d86a9a;
+  /* Cream & forest green, picked from the enchanted-forest painting */
+  --paper: #fbf6ec;
+  --paper-2: #f1e9d8;
+  --card: rgb(251 246 236 / .86);
+  --ink: #2f4a3a;
+  --ink-soft: #5f7564;
+  --line: rgb(70 100 70 / .2);
+  --accent: #5d7f3e;
   --accent-ink: #fff;
-  --accent-soft: #fbe1ec;
-  --teal: #7a72c9;
-  --teal-soft: #e6e3fb;
-  --danger: #c0392b;
-  --shadow: 0 2px 6px rgb(120 80 140 / .08), 0 14px 34px rgb(120 80 140 / .14);
+  --accent-soft: #e2ebd3;
+  --teal: #96701f;          /* comic tag: warm gold */
+  --teal-soft: #f4e6c3;
+  --danger: #b3412e;
+  --gold: #b8892b;
+  --shadow: 0 2px 6px rgb(40 60 40 / .10), 0 14px 34px rgb(30 50 30 / .18);
   --radius: 20px;
   --sky:
     radial-gradient(60vmax 50vmax at 8% 0%, #ffd9e6 0%, transparent 60%),
@@ -27,17 +29,18 @@
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --paper: #1e1830;
-    --paper-2: #2a2240;
-    --card: rgb(40 32 64 / .55);
-    --ink: #f4ecff;
-    --ink-soft: #b9abd0;
-    --line: rgb(200 180 255 / .16);
-    --accent: #ff9cc4;
-    --accent-ink: #24183a;
-    --accent-soft: rgb(255 156 196 / .16);
-    --teal: #b4aaff;
-    --teal-soft: rgb(180 170 255 / .16);
+    --paper: #17241c;
+    --paper-2: #213328;
+    --card: rgb(22 38 29 / .78);
+    --ink: #f3ecd9;
+    --ink-soft: #c2c7ae;
+    --line: rgb(230 220 180 / .16);
+    --accent: #a9c47f;
+    --accent-ink: #17241c;
+    --accent-soft: rgb(169 196 127 / .18);
+    --teal: #e2c27a;
+    --teal-soft: rgb(226 194 122 / .18);
+    --gold: #e2c27a;
     --danger: #ff8a80;
     --shadow: 0 2px 6px rgb(0 0 0 / .25), 0 16px 40px rgb(0 0 0 / .35);
     --sky:
@@ -152,42 +155,42 @@ button, input, select, textarea { font: inherit; color: inherit; }
 }
 .site-title {
   font-family: var(--font-script); font-weight: 400; font-size: clamp(4rem, 13vw, 7.5rem); line-height: 1.1;
-  background: linear-gradient(100deg, #b8467c, #7f5fcf 55%, #d9785a);
+  background: linear-gradient(100deg, #3f6b33, #6f8f3e 45%, #b8892b 85%);
   -webkit-background-clip: text; background-clip: text; color: transparent;
   padding: .05em .35em .12em; /* room for the swashes */
 }
 @media (prefers-color-scheme: dark) {
-  .site-title { background-image: linear-gradient(100deg, #ffb3d1, #c9bcff 55%, #ffc9a8); }
+  .site-title { background-image: linear-gradient(100deg, #c6dba0, #e9d79a 55%, #f0c777); }
 }
 .site-tagline { color: var(--ink-soft); font-size: clamp(1.05rem, 2.4vw, 1.25rem); font-weight: 500; margin: 6px auto 0; max-width: 40ch; letter-spacing: .02em; }
 .byline {
-  margin: 14px 0 0; font-size: .82rem; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: #8a5a7a;
+  margin: 14px 0 0; font-size: .82rem; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: #6b7d5c;
   display: flex; align-items: center; justify-content: center; gap: .8em;
 }
 .byline::before, .byline::after { content: ""; width: 28px; height: 1px; background: currentColor; opacity: .5; }
-.byline strong { font-weight: 700; color: #6d3f8f; }
-@media (prefers-color-scheme: dark) { .byline { color: #d8b6cf; } .byline strong { color: #f0d6ff; } }
+.byline strong { font-weight: 700; color: #2f4a3a; }
+@media (prefers-color-scheme: dark) { .byline { color: #c2c7ae; } .byline strong { color: #e2c27a; } }
 
 .filters { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin: 8px 0 36px; }
 .chip {
-  border: 1px solid rgb(255 255 255 / .6); background: var(--card); border-radius: 999px;
+  border: 1px solid rgb(255 250 238 / .75); background: var(--card); border-radius: 999px;
   padding: .5em 1.2em; font-weight: 700; cursor: pointer; color: var(--ink-soft);
   backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: var(--shadow);
 }
-.chip[aria-pressed="true"] { background: linear-gradient(120deg, #f4a3c4, #b7a6f5); border-color: transparent; color: #fff; }
+.chip[aria-pressed="true"] { background: linear-gradient(120deg, #4f7238, #7c9a48); border-color: transparent; color: #fff; }
 
 /* Pinterest-style masonry: covers of any shape stack like pins */
 .shelf { columns: 4 230px; column-gap: clamp(16px, 2.6vw, 28px); padding-bottom: 80px; }
 .book-card {
   text-decoration: none; display: block; break-inside: avoid; margin-bottom: clamp(16px, 2.6vw, 28px);
-  background: var(--card); border: 1px solid rgb(255 255 255 / .55); border-radius: var(--radius);
+  background: var(--card); border: 1px solid rgb(255 250 238 / .75); border-radius: var(--radius);
   padding: 10px 10px 14px; box-shadow: var(--shadow);
   backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
   transition: transform .3s ease, box-shadow .3s ease;
 }
 .book-card:hover, .book-card:focus-visible {
   transform: translateY(-6px);
-  box-shadow: 0 4px 10px rgb(120 80 140 / .12), 0 26px 50px rgb(150 90 170 / .25);
+  box-shadow: 0 4px 10px rgb(40 60 40 / .14), 0 26px 50px rgb(30 50 30 / .28);
 }
 .cover {
   position: relative; aspect-ratio: var(--ratio, 3 / 4); border-radius: 14px;
@@ -197,7 +200,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .book-card:hover .cover img { transform: scale(1.04); }
 .cover::after { /* soft glow on hover */
   content: ""; position: absolute; inset: 0; opacity: 0; transition: opacity .3s;
-  background: linear-gradient(180deg, transparent 50%, rgb(216 106 154 / .25));
+  background: linear-gradient(180deg, transparent 55%, rgb(190 150 60 / .22));
 }
 .book-card:hover .cover::after { opacity: 1; }
 .book-card h3 { font-family: var(--font-script); font-weight: 400; font-size: 1.75rem; line-height: 1.15; margin: 12px 6px 6px; }
@@ -213,7 +216,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 .empty { text-align: center; color: var(--ink-soft); padding: 60px 0 100px; }
 .empty .art { font-size: 3rem; margin-bottom: 8px; }
-.empty .art { filter: drop-shadow(0 6px 14px rgb(150 90 170 / .3)); }
+.empty .art { filter: drop-shadow(0 6px 14px rgb(40 60 40 / .25)); }
 .site-footer { border-top: 1px solid var(--line); padding: 22px 0 40px; color: var(--ink-soft); font-size: .9rem; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .site-footer a { color: var(--ink-soft); }
 
@@ -332,7 +335,7 @@ body.reader {
 .admin-top h1 { font-size: 1.5rem; }
 .admin-top .links { display: flex; gap: 8px; flex-wrap: wrap; }
 
-.panel { background: var(--card); border: 1px solid rgb(255 255 255 / .5); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+.panel { background: var(--card); border: 1px solid rgb(255 250 238 / .75); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
 .panel + .panel { margin-top: 20px; }
 .panel h2 { font-size: 1.25rem; margin-bottom: 14px; }
 
@@ -423,16 +426,21 @@ textarea.input { min-height: 90px; resize: vertical; }
 /* Frosted card behind the heading so it reads well over any photo */
 .hero-card {
   display: inline-block; max-width: 100%; padding: clamp(20px, 4vw, 34px) clamp(22px, 6vw, 56px);
-  border-radius: 36px; background: rgb(255 252 248 / .55); border: 1px solid rgb(255 255 255 / .6);
+  border-radius: 36px; background: rgb(251 246 236 / .84); border: 1px solid rgb(255 250 238 / .8);
   backdrop-filter: blur(14px) saturate(1.1); -webkit-backdrop-filter: blur(14px) saturate(1.1);
   box-shadow: 0 10px 40px rgb(40 50 30 / .18);
 }
-.hero-card .site-tagline { color: #5a4c66; margin-bottom: 0; }
+.hero-card .site-tagline { color: #4a5e4d; margin-bottom: 0; }
 @media (prefers-color-scheme: dark) {
-  .hero-card { background: rgb(28 22 40 / .55); border-color: rgb(255 255 255 / .12); }
+  .hero-card { background: rgb(22 38 29 / .78); border-color: rgb(230 220 180 / .14); }
   .hero-card .site-tagline { color: var(--ink-soft); }
 }
 .site-footer { background: var(--card); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 18px 18px 0 0; padding-inline: 18px; border-top: 0; }
 
 .site-footer .made-by strong { font-weight: 700; }
 .site-footer { font-weight: 500; }
+
+/* Cream & forest green details */
+.book-card h3 { color: var(--ink); }
+.badge { background: var(--accent-soft); color: var(--accent); }
+@media (prefers-color-scheme: dark) { .book-card, .chip, .panel { border-color: rgb(230 220 180 / .14) !important; } }
