@@ -2,7 +2,7 @@
 
 A dreamy little website for publishing illustrated storybooks and comics. Readers open a book and turn the pages one by one, like a real book.
 
-- **Library**: a Pinterest-style shelf of covers on a soft pastel sky, with filters for storybooks and comics.
+- **Library**: a Pinterest-style shelf of covers over a dreamy nature backdrop (your own photo, or a painted pastel meadow) with drifting petals, plus filters for storybooks and comics.
 - **Reader**: 3D page turns, two-page spreads on big screens and single pages on phones. You can tap, swipe, or use the arrow keys, and there's a full-screen mode, a page slider and right-to-left (manga) reading. It also remembers where each reader stopped.
 - **Studio** (`/admin`): runs on your computer. Create a book, drop in page images or a whole PDF, drag pages into order, and publish.
 

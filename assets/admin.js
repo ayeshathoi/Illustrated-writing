@@ -65,6 +65,7 @@
     fetch("books/site.json", { cache: "no-cache" }).then((r) => r.json()).then((s) => {
       $("site-title").value = s.siteTitle || "";
       $("site-tagline").value = s.tagline || "";
+      renderBackground(s.background);
     }).catch(() => {});
     await loadBooks();
     const wanted = new URLSearchParams(location.search).get("book");
@@ -76,6 +77,47 @@
     try {
       await api("PATCH", "site", { siteTitle: $("site-title").value, tagline: $("site-tagline").value });
       toast("Site details saved");
+    } catch (err) { toast(err.message, true); }
+  });
+
+  // ------------------------------------------------------------------ background photo
+  function renderBackground(name) {
+    const url = name ? "books/" + encodeURIComponent(name) : "";
+    $("bg-preview").style.backgroundImage = url ? `url("${url}")` : "";
+    $("bg-preview").querySelector("span").textContent = url ? "Your photo" : "Painted meadow (default)";
+    $("bg-remove").hidden = !url;
+    if (window.storyshelfBackground) window.storyshelfBackground(url);
+  }
+
+  // Shrink big camera photos so the site loads quickly (backgrounds never need more).
+  async function shrinkPhoto(file, maxSide = 2400) {
+    const bmp = await createImageBitmap(file);
+    const scale = Math.min(1, maxSide / Math.max(bmp.width, bmp.height));
+    if (scale === 1 && file.size < 1.5e6) return file;
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(bmp.width * scale);
+    canvas.height = Math.round(bmp.height * scale);
+    canvas.getContext("2d").drawImage(bmp, 0, 0, canvas.width, canvas.height);
+    return new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.86));
+  }
+
+  $("bg-input").addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    e.target.value = "";
+    if (!file) return;
+    try {
+      toast("Setting your background…");
+      const site = await api("POST", "site/background", await shrinkPhoto(file), true);
+      renderBackground(site.background);
+      toast("Background updated. Push to GitHub to show it online");
+    } catch (err) { toast(err.message, true); }
+  });
+
+  $("bg-remove").addEventListener("click", async () => {
+    try {
+      await api("DELETE", "site/background");
+      renderBackground(null);
+      toast("Back to the painted meadow");
     } catch (err) { toast(err.message, true); }
   });
 

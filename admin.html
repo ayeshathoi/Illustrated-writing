@@ -55,6 +55,16 @@
             <div class="field"><label for="site-tagline">Tagline</label><input class="input" id="site-tagline" maxlength="240"></div>
             <button class="btn small" type="submit">Save</button>
           </form>
+          <div class="field" style="margin:18px 0 0">
+            <label>Background photo</label>
+            <div class="bg-preview" id="bg-preview"><span>Painted meadow (default)</span></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <label class="btn small" for="bg-input">Choose photo…</label>
+              <input type="file" id="bg-input" accept="image/png,image/jpeg,image/webp" class="visually-hidden">
+              <button class="btn small" type="button" id="bg-remove" hidden>Use meadow</button>
+            </div>
+            <span class="hint">A soft landscape (meadow, forest, sea, flowers) works best. Use photos you took or free ones from Unsplash or Pexels, since images on Pinterest usually belong to other people.</span>
+          </div>
         </section>
         <section class="panel">
           <h2>Publish online</h2>

@@ -45,6 +45,7 @@ LOCK = threading.RLock()
 
 BOOK_ID = re.compile(r"^[a-z0-9][a-z0-9-]{0,79}$")
 PAGE_FILE = re.compile(r"^p-[a-f0-9]{16}\.(png|jpg|gif|webp)$")
+BACKGROUND_FILE = re.compile(r"^background-[a-f0-9]{12}\.(png|jpg|gif|webp)$")
 BOOK_TYPES = {"storybook", "comic"}
 DIRECTIONS = {"ltr", "rtl"}
 
@@ -321,6 +322,23 @@ class Handler(BaseHTTPRequestHandler):
                     site["siteTitle"] = clean_text(data["siteTitle"], 120) or "The Story Shelf"
                 if "tagline" in data:
                     site["tagline"] = clean_text(data["tagline"], 240)
+                write_json(SITE_FILE, site)
+            return self.send_json(site)
+
+        if parts == ["site", "background"] and method in ("POST", "DELETE"):
+            data = self.read_body(MAX_UPLOAD) if method == "POST" else b""
+            ext = sniff_image(data) if data else None
+            if method == "POST" and not ext:
+                raise ApiError(415, "The background must be a PNG, JPG, GIF or WebP image")
+            with LOCK:
+                site = read_json_file(SITE_FILE, {})
+                old = site.pop("background", None)
+                if old and BACKGROUND_FILE.match(old):
+                    (BOOKS / old).unlink(missing_ok=True)
+                if ext:
+                    # A fresh name each time so browsers never show a stale photo.
+                    site["background"] = f"background-{secrets.token_hex(6)}.{ext}"
+                    (BOOKS / site["background"]).write_bytes(data)
                 write_json(SITE_FILE, site)
             return self.send_json(site)
 
