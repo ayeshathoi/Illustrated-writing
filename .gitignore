@@ -1,0 +1,10 @@
+# Private admin settings (password hash, session secret) - never publish
+.admin/
+
+# Source files you upload through the studio (the pages themselves live in books/)
+/*.pdf
+
+*.tmp
+.DS_Store
+__pycache__/
+.claude/
