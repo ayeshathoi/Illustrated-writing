@@ -42,7 +42,7 @@ window.formatDate = (iso) => {
 
 // A journal entry preview card (home page and journal list).
 window.journalCard = function (e) {
-  const bn = /[\u0980-\u09FF]/.test(e.title + e.excerpt) ? ' lang="bn"' : "";
+  const bn = window.isMostlyBengali(e.title + " " + e.excerpt) ? ' lang="bn"' : "";
   return `<a class="journal-card" href="journal.html?entry=${encodeURIComponent(e.id)}">
     ${e.cover ? `<div class="journal-thumb"><img src="journal/${encodeURIComponent(e.id)}/${encodeURIComponent(e.cover)}" alt="" loading="lazy"></div>` : ""}
     <div class="journal-body"${bn}>
@@ -52,4 +52,11 @@ window.journalCard = function (e) {
       <span class="text-link">Read more →</span>
     </div>
   </a>`;
+};
+
+// True when most letters are Bengali (an English post with a Bengali quote stays English).
+window.isMostlyBengali = function (text) {
+  const bn = (text.match(/[\u0980-\u09FF]/g) || []).length;
+  const latin = (text.match(/[A-Za-z]/g) || []).length;
+  return bn > latin;
 };
