@@ -1,5 +1,5 @@
 // Dreamy nature backdrop: your background photo (set in the studio) or a painted
-// pastel meadow, a soft wash for readability, and a few drifting petals.
+// pastel meadow, a soft wash for readability, and a few rising bubbles.
 (function () {
   const sky = document.createElement("div");
   sky.className = "dreamy-sky";
@@ -55,7 +55,7 @@
 
   function usePhoto(url) {
     const img = new Image();
-    img.onload = () => { scene.innerHTML = ""; scene.style.backgroundImage = `url("${url}")`; };
+    img.onload = () => { scene.innerHTML = ""; scene.style.backgroundImage = `url("${url}")`; sky.classList.add("has-photo"); };
     img.src = url;
   }
 
@@ -65,21 +65,18 @@
     .then((site) => { if (site.background) usePhoto("books/" + encodeURIComponent(site.background)); })
     .catch(() => {});
   // The studio calls this right after you pick a new photo.
-  window.storyshelfBackground = (url) => (url ? usePhoto(url) : ((scene.style.backgroundImage = ""), (scene.innerHTML = meadow())));
+  window.storyshelfBackground = (url) => (url ? usePhoto(url) : ((scene.style.backgroundImage = ""), sky.classList.remove("has-photo"), (scene.innerHTML = meadow())));
 
-  // ---- drifting petals
-  const tints = ["#ffd3e2", "#ffe4ec", "#ffffff", "#f9c4d6", "#ffe9d6"];
-  const count = window.innerWidth < 600 ? 7 : 14;
+  // ---- rising bubbles
+  const count = window.innerWidth < 600 ? 6 : 12;
   for (let i = 0; i < count; i++) {
-    const p = document.createElement("span");
-    p.className = "petal";
-    p.innerHTML = "<i></i>";
-    const d = 14 + Math.random() * 14;
-    p.style.setProperty("--x", (Math.random() * 100).toFixed(1) + "vw");
-    p.style.setProperty("--s", (8 + Math.random() * 8).toFixed(1) + "px");
-    p.style.setProperty("--d", d.toFixed(1) + "s");
-    p.style.setProperty("--delay", (-Math.random() * d).toFixed(1) + "s");
-    p.style.setProperty("--c", tints[i % tints.length]);
-    sky.appendChild(p);
+    const b = document.createElement("span");
+    b.className = "bubble";
+    const d = 18 + Math.random() * 16;
+    b.style.setProperty("--x", (Math.random() * 100).toFixed(1) + "vw");
+    b.style.setProperty("--s", (14 + Math.random() * 34).toFixed(0) + "px");
+    b.style.setProperty("--d", d.toFixed(1) + "s");
+    b.style.setProperty("--delay", (-Math.random() * d).toFixed(1) + "s");
+    sky.appendChild(b);
   }
 })();

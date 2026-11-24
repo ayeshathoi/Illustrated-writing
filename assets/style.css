@@ -85,27 +85,40 @@ body {
   .dreamy-sky .scene { filter: brightness(.55) saturate(.9); }
   .dreamy-sky .wash { background: linear-gradient(180deg, rgb(24 18 36 / .62), rgb(24 18 36 / .35) 45%, rgb(24 18 36 / .55)); }
 }
+.dreamy-sky.has-photo .scene { background-position: center 30%; }
+.dreamy-sky.has-photo .wash {
+  background:
+    radial-gradient(70vmax 38vmax at 50% 8%, rgb(255 250 245 / .55), transparent 70%),
+    linear-gradient(180deg, rgb(255 250 245 / .25), rgb(255 250 245 / .05) 45%, rgb(30 40 30 / .12));
+}
+@media (prefers-color-scheme: dark) {
+  .dreamy-sky.has-photo .scene { filter: brightness(.7) saturate(1); }
+  .dreamy-sky.has-photo .wash { background: radial-gradient(70vmax 38vmax at 50% 8%, rgb(20 16 30 / .55), transparent 70%), linear-gradient(180deg, rgb(20 16 30 / .3), rgb(20 16 30 / .15) 50%, rgb(20 16 30 / .45)); }
+}
 /* In the reader the scene sits further back so the pages stand out. */
 body.reader .dreamy-sky .scene { filter: blur(6px) brightness(.5) saturate(.95); }
 body.reader .dreamy-sky .wash { background: radial-gradient(90% 80% at 50% 50%, rgb(30 22 40 / .25), rgb(20 14 28 / .65)); }
 
-/* Petals drifting down instead of stars */
-.petal {
-  position: absolute; top: -6vh; left: var(--x); width: var(--s); height: calc(var(--s) * 1.2);
-  animation: fall var(--d) linear infinite; animation-delay: var(--delay);
+/* Soap bubbles rising gently, like the ones in a fairy-tale forest */
+.bubble {
+  position: absolute; bottom: -10vh; left: var(--x); width: var(--s); height: var(--s); border-radius: 50%;
+  background:
+    radial-gradient(circle at 32% 28%, rgb(255 255 255 / .95) 0 7%, transparent 9%),
+    radial-gradient(circle at 70% 75%, rgb(255 255 255 / .35) 0 6%, transparent 9%),
+    radial-gradient(circle at 50% 50%, transparent 58%, rgb(190 230 255 / .35) 70%, rgb(255 190 230 / .45) 84%, rgb(255 255 255 / .6) 100%);
+  box-shadow: inset 0 0 6px rgb(255 255 255 / .5);
+  animation: rise var(--d) linear infinite, wobble calc(var(--d) / 5) ease-in-out infinite alternate;
+  animation-delay: var(--delay), var(--delay);
 }
-.petal i {
-  display: block; width: 100%; height: 100%; background: var(--c);
-  border-radius: 80% 0 80% 0; opacity: .85; box-shadow: inset -2px -2px 4px rgb(0 0 0 / .06);
-  animation: sway calc(var(--d) / 4) ease-in-out infinite alternate;
+@keyframes rise {
+  0% { transform: translateY(0); opacity: 0; }
+  8% { opacity: .9; }
+  85% { opacity: .9; }
+  100% { transform: translateY(-120vh); opacity: 0; }
 }
-@keyframes fall { to { transform: translateY(115vh); } }
-@keyframes sway {
-  from { transform: translateX(-18px) rotate(-30deg) rotateX(0deg); }
-  to { transform: translateX(22px) rotate(50deg) rotateX(60deg); }
-}
+@keyframes wobble { from { margin-left: -14px; } to { margin-left: 16px; } }
 @keyframes breathe { from { transform: scale(1); } to { transform: scale(1.05); } }
-@media (prefers-reduced-motion: reduce) { .petal { display: none; } }
+@media (prefers-reduced-motion: reduce) { .bubble { display: none; } }
 a { color: inherit; }
 img { display: block; max-width: 100%; }
 h1, h2, h3 { font-family: var(--font-display); font-weight: 600; line-height: 1.15; margin: 0; }
@@ -398,3 +411,17 @@ textarea.input { min-height: 90px; resize: vertical; }
   display: grid; place-items: end start; padding: 8px; margin-bottom: 8px;
 }
 .bg-preview span { font-size: .78rem; font-weight: 700; background: rgb(255 255 255 / .8); color: #3b2f4a; padding: .15em .6em; border-radius: 999px; }
+
+/* Frosted card behind the heading so it reads well over any photo */
+.hero-card {
+  display: inline-block; max-width: 100%; padding: clamp(20px, 4vw, 34px) clamp(22px, 6vw, 56px);
+  border-radius: 36px; background: rgb(255 252 248 / .55); border: 1px solid rgb(255 255 255 / .6);
+  backdrop-filter: blur(14px) saturate(1.1); -webkit-backdrop-filter: blur(14px) saturate(1.1);
+  box-shadow: 0 10px 40px rgb(40 50 30 / .18);
+}
+.hero-card .site-tagline { color: #5a4c66; margin-bottom: 0; }
+@media (prefers-color-scheme: dark) {
+  .hero-card { background: rgb(28 22 40 / .55); border-color: rgb(255 255 255 / .12); }
+  .hero-card .site-tagline { color: var(--ink-soft); }
+}
+.site-footer { background: var(--card); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 18px 18px 0 0; padding-inline: 18px; border-top: 0; }
