@@ -42,9 +42,10 @@ window.formatDate = (iso) => {
 
 // A journal entry preview card (home page and journal list).
 window.journalCard = function (e) {
+  const bn = /[\u0980-\u09FF]/.test(e.title + e.excerpt) ? ' lang="bn"' : "";
   return `<a class="journal-card" href="journal.html?entry=${encodeURIComponent(e.id)}">
     ${e.cover ? `<div class="journal-thumb"><img src="journal/${encodeURIComponent(e.id)}/${encodeURIComponent(e.cover)}" alt="" loading="lazy"></div>` : ""}
-    <div class="journal-body">
+    <div class="journal-body"${bn}>
       <time>${esc(formatDate(e.date))}</time>
       <h3>${esc(e.title)}</h3>
       <p>${esc(e.excerpt)}</p>

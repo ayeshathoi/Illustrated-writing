@@ -22,9 +22,9 @@
     radial-gradient(60vmax 55vmax at 70% 100%, #ffe6d3 0%, transparent 60%),
     radial-gradient(50vmax 50vmax at 0% 90%, #d6ecff 0%, transparent 60%),
     linear-gradient(180deg, #fff7fb, #f8f1ff);
-  --font-script: "Parisienne", "Snell Roundhand", "Apple Chancery", cursive;
+  --font-script: "Parisienne", "Tiro Bangla", "Snell Roundhand", "Apple Chancery", cursive;
   --font-display: "Quicksand", system-ui, sans-serif;
-  --font-body: "Quicksand", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-body: "Quicksand", "Noto Serif Bengali", system-ui, -apple-system, "Segoe UI", sans-serif;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
@@ -718,3 +718,9 @@ textarea.entry-body { min-height: 420px; font-size: 1.05rem; line-height: 1.75; 
   .featured { transform: none; width: min(300px, 100%); }
 }
 .hero .byline { display: block; line-height: 1.7; } .hero .byline::after { display: none; }
+
+/* Bengali writing: a little more line height so the letter shapes breathe */
+:lang(bn) { line-height: 2; }
+.prose:lang(bn) { font-size: 1.15rem; }
+.article-title:lang(bn), .journal-body h3:lang(bn) { font-family: "Tiro Bangla", var(--font-script); }
+.prose:lang(bn) blockquote, .prose:lang(bn) em { font-style: normal; } .prose:lang(bn) blockquote { font-weight: 600; color: var(--ink); }
