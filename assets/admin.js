@@ -65,6 +65,7 @@
     fetch("books/site.json", { cache: "no-cache" }).then((r) => r.json()).then((s) => {
       $("site-title").value = s.siteTitle || "";
       $("site-tagline").value = s.tagline || "";
+      $("site-owner").value = s.owner || "";
       renderBackground(s.background);
     }).catch(() => {});
     await loadBooks();
@@ -75,7 +76,7 @@
   $("site-form").addEventListener("submit", async (e) => {
     e.preventDefault();
     try {
-      await api("PATCH", "site", { siteTitle: $("site-title").value, tagline: $("site-tagline").value });
+      await api("PATCH", "site", { siteTitle: $("site-title").value, tagline: $("site-tagline").value, owner: $("site-owner").value });
       toast("Site details saved");
     } catch (err) { toast(err.message, true); }
   });

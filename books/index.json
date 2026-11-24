@@ -1,3 +1,16 @@
 {
-  "books": []
+  "books": [
+    {
+      "id": "princess-adaline-7c7a",
+      "title": "Princess Adaline",
+      "type": "storybook",
+      "author": "Ayesha Binte Mostofa",
+      "description": "Children Stories",
+      "direction": "ltr",
+      "created": 1795511936,
+      "cover": "p-e1eec2eb210a9213.jpg",
+      "pageCount": 13,
+      "coverRatio": 1.051
+    }
+  ]
 }

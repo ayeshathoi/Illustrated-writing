@@ -89,7 +89,7 @@ def ensure_setup() -> dict:
     BOOKS.mkdir(exist_ok=True)
     PRIVATE.mkdir(exist_ok=True)
     if not SITE_FILE.exists():
-        write_json(SITE_FILE, {"siteTitle": "The Story Shelf",
+        write_json(SITE_FILE, {"siteTitle": "Fables",
                                "tagline": "Illustrated storybooks & comics"})
     cfg = read_json_file(CONFIG_FILE, {})
     if "secret" not in cfg:
@@ -319,9 +319,11 @@ class Handler(BaseHTTPRequestHandler):
             with LOCK:
                 site = read_json_file(SITE_FILE, {})
                 if "siteTitle" in data:
-                    site["siteTitle"] = clean_text(data["siteTitle"], 120) or "The Story Shelf"
+                    site["siteTitle"] = clean_text(data["siteTitle"], 120) or "Fables"
                 if "tagline" in data:
                     site["tagline"] = clean_text(data["tagline"], 240)
+                if "owner" in data:
+                    site["owner"] = clean_text(data["owner"], 120)
                 write_json(SITE_FILE, site)
             return self.send_json(site)
 

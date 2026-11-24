@@ -3,6 +3,7 @@
   const empty = document.getElementById("empty");
   let books = [];
   let filter = "all";
+  document.getElementById("year").textContent = new Date().getFullYear();
 
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
@@ -38,7 +39,12 @@
     document.getElementById("site-title").textContent = site.siteTitle;
     document.getElementById("site-tagline").textContent = site.tagline || "";
     document.getElementById("footer-name").textContent = site.siteTitle;
-    document.title = site.siteTitle;
+    if (site.owner) {
+      document.getElementById("owner").textContent = site.owner;
+      document.getElementById("footer-owner").textContent = site.owner;
+    }
+    document.getElementById("byline").hidden = !site.owner;
+    document.title = site.owner ? `${site.siteTitle} · ${site.owner}` : site.siteTitle;
   }).catch(() => {});
 
   fetch("books/index.json", { cache: "no-cache" })
