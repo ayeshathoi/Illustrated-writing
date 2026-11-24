@@ -32,6 +32,8 @@
       $("book-title").textContent = b.title;
       $("book-sub").textContent = [b.author && "by " + b.author, b.type === "comic" ? "Comic" : "Storybook", !b.published && "Draft preview"].filter(Boolean).join(" · ");
       scrub.dataset.rtl = String(rtl);
+      setupComments(b.id);
+      window.setupBookMusic && window.setupBookMusic(b, $("music-btn"));
       const first = new Image();
       first.onload = () => { if (first.naturalWidth) ratio = first.naturalWidth / first.naturalHeight; start(); };
       first.onerror = start;
@@ -224,6 +226,25 @@
     updateUi();
   }
 
+  // ------------------------------------------------------------------ comments drawer
+  function setupComments(bookId) {
+    window.siteReady.then((site) => {
+      if (!site.commentsUrl) return;
+      $("comments-btn").hidden = false;
+      $("end-comment-btn").hidden = false;
+      let mounted = false;
+      const open = () => {
+        if (!mounted) { window.mountComments($("comments"), "book:" + bookId, site.commentsUrl); mounted = true; }
+        endCard.hidden = true;
+        $("drawer").hidden = false;
+        $("drawer").querySelector("textarea")?.focus();
+      };
+      $("comments-btn").addEventListener("click", () => ($("drawer").hidden ? open() : ($("drawer").hidden = true)));
+      $("end-comment-btn").addEventListener("click", open);
+      $("drawer-close").addEventListener("click", () => ($("drawer").hidden = true));
+    });
+  }
+
   // ------------------------------------------------------------------ end of book
   function showEnd() {
     $("end-sub").textContent = `Thank you for reading “${book.title}”.`;
@@ -243,6 +264,7 @@
 
   document.addEventListener("keydown", (e) => {
     if (e.target === scrub || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.target.closest && e.target.closest("input, textarea, .drawer")) return;
     if (!endCard.hidden && e.key === "Escape") { endCard.hidden = true; return; }
     switch (e.key) {
       case "ArrowRight": pressRight(); break;

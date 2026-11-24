@@ -36,6 +36,9 @@ SITE_FILE = BOOKS / "site.json"              # public: site title & tagline
 INDEX_FILE = BOOKS / "index.json"            # public: list of published books
 PRIVATE = ROOT / ".admin"                    # private: git-ignored
 CONFIG_FILE = PRIVATE / "config.json"
+JOURNAL = ROOT / "journal"                   # public journal entries: committed to git
+JOURNAL_INDEX = JOURNAL / "index.json"
+PRIVATE_JOURNAL = ROOT / "private" / "journal"  # private entries: git-ignored, never online
 
 MAX_UPLOAD = 80 * 1024 * 1024
 MAX_JSON = 1024 * 1024
@@ -46,17 +49,24 @@ LOCK = threading.RLock()
 BOOK_ID = re.compile(r"^[a-z0-9][a-z0-9-]{0,79}$")
 PAGE_FILE = re.compile(r"^p-[a-f0-9]{16}\.(png|jpg|gif|webp)$")
 BACKGROUND_FILE = re.compile(r"^background-[a-f0-9]{12}\.(png|jpg|gif|webp)$")
-BOOK_TYPES = {"storybook", "comic"}
+BOOK_TYPES = {"storybook", "comic", "visual"}
+IMAGE_FILE = re.compile(r"^i-[a-f0-9]{16}\.(png|jpg|gif|webp)$")
+DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+IMAGE_REF = re.compile(r"!\[[^\]]*\]\((i-[a-f0-9]{16}\.(?:png|jpg|gif|webp))\)")
 DIRECTIONS = {"ltr", "rtl"}
 
 PUBLIC_PAGES = {"": "index.html", "index.html": "index.html", "read.html": "read.html",
+                "story.html": "story.html", "journal.html": "journal.html",
                 "admin": "admin.html", "admin.html": "admin.html"}
 CONTENT_TYPES = {
     ".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8",
     ".js": "text/javascript; charset=utf-8", ".json": "application/json; charset=utf-8",
     ".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg",
     ".gif": "image/gif", ".webp": "image/webp",
+    ".mp3": "audio/mpeg", ".m4a": "audio/mp4", ".ogg": "audio/ogg", ".wav": "audio/wav",
 }
+MUSIC_FILE = re.compile(r"^music-[a-f0-9]{12}\.(mp3|m4a|ogg|wav)$")
+MUSIC_MODES = {"auto", "file", "off"}
 
 
 # --------------------------------------------------------------------------- storage
@@ -103,7 +113,17 @@ def ensure_setup() -> dict:
             print("  Change it any time with:  python3 server.py --set-password\n")
         cfg["passwordHash"] = hash_password(password)
     write_json(CONFIG_FILE, cfg)
+    site = read_json_file(SITE_FILE, {})
+    if "background" in site:  # older single-photo setting -> list of photos
+        old = site.pop("background")
+        site.setdefault("backgrounds", [])
+        if old and old not in site["backgrounds"]:
+            site["backgrounds"].insert(0, old)
+        write_json(SITE_FILE, site)
+    JOURNAL.mkdir(exist_ok=True)
+    PRIVATE_JOURNAL.mkdir(parents=True, exist_ok=True)
     rebuild_index()
+    rebuild_journal_index()
     return cfg
 
 
@@ -144,6 +164,64 @@ def rebuild_index() -> None:
     write_json(INDEX_FILE, {"books": shelf})
 
 
+# ---- journal
+
+def entry_dir(entry_id: str, public: bool) -> Path:
+    if not BOOK_ID.match(entry_id):
+        raise ApiError(404, "Entry not found")
+    return (JOURNAL if public else PRIVATE_JOURNAL) / entry_id
+
+
+def find_entry(entry_id: str) -> tuple[dict, Path]:
+    for public in (True, False):
+        folder = entry_dir(entry_id, public)
+        entry = read_json_file(folder / "entry.json", None)
+        if entry:
+            return entry, folder
+    raise ApiError(404, "Entry not found")
+
+
+def all_entries() -> list[dict]:
+    entries = []
+    for base in (JOURNAL, PRIVATE_JOURNAL):
+        entries += [e for e in (read_json_file(p, None) for p in base.glob("*/entry.json")) if e]
+    entries.sort(key=lambda e: (e.get("date", ""), e.get("created", 0)), reverse=True)
+    return entries
+
+
+def excerpt(body: str, limit: int = 220) -> str:
+    text = IMAGE_REF.sub("", body)
+    text = re.sub(r"[*#_>]", "", text)
+    text = " ".join(text.split())
+    return text if len(text) <= limit else text[:limit].rsplit(" ", 1)[0] + "…"
+
+
+def rebuild_journal_index() -> None:
+    """journal/index.json is what the public Journal page reads (public entries only)."""
+    items = []
+    for e in all_entries():
+        if e.get("public"):
+            images = IMAGE_REF.findall(e.get("body", ""))
+            items.append({"id": e["id"], "title": e["title"], "date": e["date"],
+                          "excerpt": excerpt(e.get("body", "")), "cover": images[0] if images else None})
+    write_json(JOURNAL_INDEX, {"entries": items})
+
+
+def save_entry(entry: dict, folder: Path) -> None:
+    entry["updated"] = int(time.time())
+    write_json(folder / "entry.json", entry)
+    # Remove pictures that are no longer used in the text.
+    used = set(IMAGE_REF.findall(entry.get("body", "")))
+    for f in folder.iterdir():
+        if IMAGE_FILE.match(f.name) and f.name not in used:
+            f.unlink(missing_ok=True)
+    rebuild_journal_index()
+
+
+def valid_date(value) -> str:
+    return value if isinstance(value, str) and DATE.match(value) else time.strftime("%Y-%m-%d")
+
+
 def slugify(title: str) -> str:
     slug = re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-")[:60].strip("-")
     return f"{slug or 'book'}-{secrets.token_hex(2)}"
@@ -158,6 +236,18 @@ def sniff_image(data: bytes) -> str | None:
         return "gif"
     if data[:4] == b"RIFF" and data[8:12] == b"WEBP":
         return "webp"
+    return None
+
+
+def sniff_audio(data: bytes) -> str | None:
+    if data[:3] == b"ID3" or (len(data) > 1 and data[0] == 0xFF and data[1] & 0xE0 == 0xE0):
+        return "mp3"
+    if data[4:8] == b"ftyp":
+        return "m4a"
+    if data[:4] == b"OggS":
+        return "ogg"
+    if data[:4] == b"RIFF" and data[8:12] == b"WAVE":
+        return "wav"
     return None
 
 
@@ -282,7 +372,7 @@ class Handler(BaseHTTPRequestHandler):
         key = "/".join(parts)
         if key in PUBLIC_PAGES:
             return self.send_file(ROOT / PUBLIC_PAGES[key])
-        if parts and parts[0] in ("assets", "books"):
+        if parts and (parts[0] in ("assets", "books", "journal") or (parts[0] == "private" and self.is_admin())):
             target = (ROOT / key).resolve()
             base = (ROOT / parts[0]).resolve()
             if base in target.parents and target.is_file() and target.suffix.lower() in CONTENT_TYPES:
@@ -324,23 +414,37 @@ class Handler(BaseHTTPRequestHandler):
                     site["tagline"] = clean_text(data["tagline"], 240)
                 if "owner" in data:
                     site["owner"] = clean_text(data["owner"], 120)
+                if "about" in data:
+                    site["about"] = clean_text(data["about"], 4000)
+                if "commentsUrl" in data:
+                    url = clean_text(data["commentsUrl"], 400)
+                    if url and not re.match(r"^https://script\.google(usercontent)?\.com/", url):
+                        raise ApiError(400, "That doesn't look like a Google Apps Script web app link")
+                    site["commentsUrl"] = url
                 write_json(SITE_FILE, site)
             return self.send_json(site)
 
-        if parts == ["site", "background"] and method in ("POST", "DELETE"):
-            data = self.read_body(MAX_UPLOAD) if method == "POST" else b""
-            ext = sniff_image(data) if data else None
-            if method == "POST" and not ext:
-                raise ApiError(415, "The background must be a PNG, JPG, GIF or WebP image")
+        if parts == ["site", "backgrounds"] and method == "POST":
+            data = self.read_body(MAX_UPLOAD)
+            ext = sniff_image(data)
+            if not ext:
+                raise ApiError(415, "Backgrounds must be PNG, JPG, GIF or WebP images")
             with LOCK:
                 site = read_json_file(SITE_FILE, {})
-                old = site.pop("background", None)
-                if old and BACKGROUND_FILE.match(old):
-                    (BOOKS / old).unlink(missing_ok=True)
-                if ext:
-                    # A fresh name each time so browsers never show a stale photo.
-                    site["background"] = f"background-{secrets.token_hex(6)}.{ext}"
-                    (BOOKS / site["background"]).write_bytes(data)
+                name = f"background-{secrets.token_hex(6)}.{ext}"
+                (BOOKS / name).write_bytes(data)
+                site.setdefault("backgrounds", []).append(name)
+                write_json(SITE_FILE, site)
+            return self.send_json(site)
+
+        if len(parts) == 3 and parts[:2] == ["site", "backgrounds"] and method == "DELETE":
+            name = parts[2]
+            with LOCK:
+                site = read_json_file(SITE_FILE, {})
+                if name not in site.get("backgrounds", []) or not BACKGROUND_FILE.match(name):
+                    raise ApiError(404, "Background not found")
+                site["backgrounds"].remove(name)
+                (BOOKS / name).unlink(missing_ok=True)
                 write_json(SITE_FILE, site)
             return self.send_json(site)
 
@@ -389,11 +493,23 @@ class Handler(BaseHTTPRequestHandler):
                         book["direction"] = data["direction"]
                     if "published" in data:
                         book["published"] = bool(data["published"])
+                    if "musicMode" in data:
+                        if data["musicMode"] not in MUSIC_MODES:
+                            raise ApiError(400, "Unknown music setting")
+                        book["musicMode"] = data["musicMode"]
                     if "coverRatio" in data:
                         ratio = data["coverRatio"]
                         if not isinstance(ratio, (int, float)) or not 0.2 < ratio < 5:
                             raise ApiError(400, "Bad cover ratio")
                         book["coverRatio"] = round(float(ratio), 4)
+                    if "captions" in data:
+                        caps = data["captions"]
+                        if not isinstance(caps, dict):
+                            raise ApiError(400, "Bad captions")
+                        book.setdefault("captions", {})
+                        for key, text in caps.items():
+                            if key in book["pages"]:
+                                book["captions"][key] = clean_text(text, 5000)
                     if "pages" in data:
                         order = data["pages"]
                         if not isinstance(order, list) or sorted(order) != sorted(book["pages"]):
@@ -422,6 +538,25 @@ class Handler(BaseHTTPRequestHandler):
                     save_book(book)
                 return self.send_json(book, 201)
 
+            if rest == ["music"] and method in ("POST", "DELETE"):
+                data = self.read_body(MAX_UPLOAD) if method == "POST" else b""
+                ext = sniff_audio(data) if data else None
+                if method == "POST" and not ext:
+                    raise ApiError(415, "Music must be an MP3, M4A, OGG or WAV file")
+                with LOCK:
+                    book = read_book(book_id)
+                    old = book.pop("music", None)
+                    if old and MUSIC_FILE.match(old):
+                        (book_dir(book_id) / old).unlink(missing_ok=True)
+                    if ext:
+                        book["music"] = f"music-{secrets.token_hex(6)}.{ext}"
+                        (book_dir(book_id) / book["music"]).write_bytes(data)
+                        book["musicMode"] = "file"
+                    elif book.get("musicMode") == "file":
+                        book["musicMode"] = "auto"
+                    save_book(book)
+                return self.send_json(book)
+
             if len(rest) == 2 and rest[0] == "pages" and method == "DELETE":
                 name = rest[1]
                 with LOCK:
@@ -429,9 +564,66 @@ class Handler(BaseHTTPRequestHandler):
                     if name not in book["pages"] or not PAGE_FILE.match(name):
                         raise ApiError(404, "Page not found")
                     book["pages"].remove(name)
+                    book.get("captions", {}).pop(name, None)
                     (book_dir(book_id) / name).unlink(missing_ok=True)
                     save_book(book)
                 return self.send_json(book)
+
+        if parts == ["journal"] and method == "GET":
+            return self.send_json({"entries": all_entries()})
+
+        if parts == ["journal"] and method == "POST":
+            data = self.read_json()
+            title = clean_text(data.get("title", ""), 200) or "Untitled"
+            public = bool(data.get("public", False))
+            with LOCK:
+                entry_id = slugify(title)
+                while (JOURNAL / entry_id).exists() or (PRIVATE_JOURNAL / entry_id).exists():
+                    entry_id = slugify(title)
+                folder = entry_dir(entry_id, public)
+                folder.mkdir(parents=True)
+                entry = {"id": entry_id, "title": title, "date": valid_date(data.get("date")),
+                         "body": clean_text(data.get("body", ""), 200_000), "public": public,
+                         "created": int(time.time())}
+                save_entry(entry, folder)
+            return self.send_json(entry, 201)
+
+        if len(parts) >= 2 and parts[0] == "journal":
+            entry_id, rest = parts[1], parts[2:]
+            if not rest and method == "PATCH":
+                data = self.read_json()
+                with LOCK:
+                    entry, folder = find_entry(entry_id)
+                    if "title" in data:
+                        entry["title"] = clean_text(data["title"], 200) or "Untitled"
+                    if "date" in data:
+                        entry["date"] = valid_date(data["date"])
+                    if "body" in data:
+                        entry["body"] = clean_text(data["body"], 200_000)
+                    if "public" in data and bool(data["public"]) != bool(entry.get("public")):
+                        target = entry_dir(entry_id, bool(data["public"]))
+                        target.parent.mkdir(parents=True, exist_ok=True)
+                        shutil.move(str(folder), str(target))
+                        folder, entry["public"] = target, bool(data["public"])
+                    save_entry(entry, folder)
+                return self.send_json(entry)
+            if not rest and method == "DELETE":
+                with LOCK:
+                    _, folder = find_entry(entry_id)
+                    shutil.rmtree(folder)
+                    rebuild_journal_index()
+                return self.send_json({"ok": True})
+            if rest == ["images"] and method == "POST":
+                data = self.read_body(MAX_UPLOAD)
+                ext = sniff_image(data)
+                if not ext:
+                    raise ApiError(415, "Pictures must be PNG, JPG, GIF or WebP")
+                with LOCK:
+                    entry, folder = find_entry(entry_id)
+                    name = f"i-{secrets.token_hex(8)}.{ext}"
+                    (folder / name).write_bytes(data)
+                base = "journal" if entry.get("public") else "private/journal"
+                return self.send_json({"name": name, "url": f"{base}/{entry_id}/{name}"}, 201)
 
         raise ApiError(404, "Not found")
 

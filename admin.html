@@ -8,13 +8,18 @@
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Parisienne&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/style.css?v=202611240434">
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Lora:ital,wght@0,500;0,600;1,500&family=Parisienne&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css?v=20261124045212">
 </head>
-<body>
+<body class="studio">
   <div class="wrap">
     <header class="admin-top">
-      <h1>✨ Studio</h1>
+      <h1><span class="brand">Studio</span></h1>
+      <nav class="studio-tabs" id="tabs" role="tablist" hidden>
+        <button role="tab" data-tab="books" aria-selected="true">Books &amp; stories</button>
+        <button role="tab" data-tab="journal" aria-selected="false">Journal</button>
+        <button role="tab" data-tab="settings" aria-selected="false">Site settings</button>
+      </nav>
       <div class="links">
         <a class="btn small" href="index.html" target="_blank" rel="noopener">View site</a>
         <button class="btn small" id="logout-btn" hidden>Sign out</button>
@@ -24,14 +29,14 @@
     <!-- Shown when this page is opened on GitHub Pages instead of your computer -->
     <section class="panel login" id="offline" hidden>
       <h2>The studio runs on your computer</h2>
-      <p>To upload books, open a terminal in the project folder and run:</p>
+      <p>To add stories and journal entries, open Terminal in the project folder and run:</p>
       <pre class="input" style="white-space:pre-wrap">python3 server.py</pre>
       <p>Then go to <strong>http://localhost:8000/admin</strong>. When you're happy, commit and push to publish.</p>
     </section>
 
     <section class="panel login" id="login" hidden>
       <h2>Welcome back</h2>
-      <p>Sign in to manage your books.</p>
+      <p>Sign in to your studio.</p>
       <form id="login-form">
         <div class="field">
           <label for="password">Password</label>
@@ -41,37 +46,19 @@
       </form>
     </section>
 
-    <div class="admin-grid" id="app" hidden>
+    <!-- ============================================================ BOOKS -->
+    <div class="admin-grid" id="view-books" hidden>
       <aside>
         <section class="panel">
           <h2>Your books</h2>
           <ul class="book-list" id="book-list"></ul>
-          <button class="btn primary" id="new-btn" style="width:100%">+ New book</button>
+          <button class="btn primary" id="new-btn" style="width:100%">+ New book or story</button>
         </section>
-        <section class="panel">
-          <h2>Site</h2>
-          <form id="site-form">
-            <div class="field"><label for="site-title">Site name</label><input class="input" id="site-title" maxlength="120"></div>
-            <div class="field"><label for="site-tagline">Tagline</label><input class="input" id="site-tagline" maxlength="240"></div>
-            <div class="field"><label for="site-owner">Your name</label><input class="input" id="site-owner" maxlength="120"><span class="hint">Shown as "Stories &amp; illustrations by …" and in the footer.</span></div>
-            <button class="btn small" type="submit">Save</button>
-          </form>
-          <div class="field" style="margin:18px 0 0">
-            <label>Background photo</label>
-            <div class="bg-preview" id="bg-preview"><span>Painted meadow (default)</span></div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap">
-              <label class="btn small" for="bg-input">Choose photo…</label>
-              <input type="file" id="bg-input" accept="image/png,image/jpeg,image/webp" class="visually-hidden">
-              <button class="btn small" type="button" id="bg-remove" hidden>Use meadow</button>
-            </div>
-            <span class="hint">A soft landscape (meadow, forest, sea, flowers) works best. Use photos you took or free ones from Unsplash or Pexels, since images on Pinterest usually belong to other people.</span>
-          </div>
-        </section>
-        <section class="panel">
+        <section class="panel publish-note">
           <h2>Publish online</h2>
-          <p class="muted" style="margin-top:0">Changes here are saved to the <code>books/</code> folder. To put them on your live site, push them to GitHub:</p>
-          <pre class="input" style="white-space:pre-wrap;font-size:.82rem">git add -A
-git commit -m "New pages"
+          <p class="muted" style="margin-top:0">Your changes are saved on this computer. To put them on your live site, run:</p>
+          <pre class="input">git add -A
+git commit -m "New story"
 git push</pre>
         </section>
       </aside>
@@ -79,18 +66,26 @@ git push</pre>
       <section>
         <div class="panel" id="welcome">
           <h2>Make something lovely</h2>
-          <p class="muted">Pick a book on the left, or start a new one. You can drop in page images (PNG, JPG, WebP, GIF) or a whole PDF, and each PDF page becomes a page in the book.</p>
+          <p class="muted">Pick a book on the left, or start a new one. There are three kinds:</p>
+          <ul class="muted kinds">
+            <li><strong>Storybook</strong> and <strong>Comic</strong>: finished pages that readers turn like a real book. Drop in images or a PDF, or use <em>Make a page with text</em> to write words onto your pictures.</li>
+            <li><strong>Visual story</strong>: pictures with words written beside each scene, which readers scroll through.</li>
+          </ul>
         </div>
 
         <form class="panel" id="new-form" hidden>
-          <h2>New book</h2>
+          <h2>New book or story</h2>
           <div class="field"><label for="new-title">Title</label><input class="input" id="new-title" required maxlength="200"></div>
           <div class="row">
             <div class="field"><label for="new-type">Kind</label>
-              <select class="input" id="new-type"><option value="storybook">Storybook</option><option value="comic">Comic</option></select></div>
+              <select class="input" id="new-type">
+                <option value="storybook">Storybook (page turning)</option>
+                <option value="comic">Comic (page turning)</option>
+                <option value="visual">Visual story (pictures + words, scrolling)</option>
+              </select></div>
             <div class="field"><label for="new-author">Author / illustrator</label><input class="input" id="new-author" maxlength="200"></div>
           </div>
-          <button class="btn primary" type="submit">Create book</button>
+          <button class="btn primary" type="submit">Create</button>
           <button class="btn" type="button" id="new-cancel">Cancel</button>
         </form>
 
@@ -106,42 +101,209 @@ git push</pre>
             <div class="field"><label for="ed-title">Title</label><input class="input" id="ed-title" required maxlength="200"></div>
             <div class="row">
               <div class="field"><label for="ed-type">Kind</label>
-                <select class="input" id="ed-type"><option value="storybook">Storybook</option><option value="comic">Comic</option></select></div>
+                <select class="input" id="ed-type">
+                  <option value="storybook">Storybook (page turning)</option>
+                  <option value="comic">Comic (page turning)</option>
+                  <option value="visual">Visual story (pictures + words, scrolling)</option>
+                </select></div>
               <div class="field"><label for="ed-author">Author / illustrator</label><input class="input" id="ed-author" maxlength="200"></div>
             </div>
-            <div class="field"><label for="ed-direction">Reading direction</label>
+            <div class="field" id="direction-field"><label for="ed-direction">Reading direction</label>
               <select class="input" id="ed-direction"><option value="ltr">Left to right</option><option value="rtl">Right to left (manga style)</option></select></div>
+            <div class="field"><label for="ed-music">Background music</label>
+              <div class="music-row">
+                <select class="input" id="ed-music">
+                  <option value="auto">Gentle music-box tune (made for this book)</option>
+                  <option value="file">My own music file</option>
+                  <option value="off">No music</option>
+                </select>
+                <label class="btn small" for="ed-music-file" id="ed-music-upload">Upload music…</label>
+                <input type="file" id="ed-music-file" accept="audio/mpeg,audio/mp4,audio/x-m4a,audio/ogg,audio/wav,.mp3,.m4a,.ogg,.wav" class="visually-hidden">
+              </div>
+              <span class="hint" id="ed-music-hint">Readers press the ♫ button to play it. Music never starts by itself.</span></div>
             <div class="field"><label for="ed-desc">Short description</label><textarea class="input" id="ed-desc" maxlength="4000" placeholder="A sleepy moon cat sets off to find the stars…"></textarea></div>
             <button class="btn primary" type="submit">Save details</button>
           </form>
 
           <section class="panel">
-            <h2>Pages</h2>
+            <div class="editor-head">
+              <h2 id="pages-heading">Pages</h2>
+              <button class="btn small" type="button" id="compose-btn">✍ Make a page with text</button>
+            </div>
+            <p class="muted" id="scenes-help" hidden style="margin-top:0">Add a picture for each scene, then write the words for it in the box beside it. Your words save automatically.</p>
             <label class="dropzone" id="drop">
-              <strong>Drop pages here, or click to choose</strong>
-              Images are added in file-name order (page01, page02…). A PDF is split into pages. The first page is the cover.
+              <strong>Drop pictures here, or click to choose</strong>
+              Images are added in file-name order (page01, page02…). A PDF is split into pages. The first one is the cover.
               <input type="file" id="file-input" multiple accept="image/png,image/jpeg,image/webp,image/gif,application/pdf" class="visually-hidden">
             </label>
             <div id="progress-wrap" hidden>
               <div class="progress"><div id="progress-bar"></div></div>
               <div class="progress-label" id="progress-label"></div>
             </div>
-            <p class="muted" id="pages-empty">No pages yet.</p>
+            <p class="muted" id="pages-empty">Nothing here yet.</p>
             <div class="pages-grid" id="pages"></div>
           </section>
 
           <section class="panel">
             <h2>Danger zone</h2>
-            <p class="muted" style="margin-top:0">Deleting a book removes all of its pages from this computer.</p>
+            <p class="muted" style="margin-top:0">Deleting removes the book and all of its pages from this computer.</p>
             <button class="btn danger" id="delete-btn">Delete this book</button>
           </section>
         </div>
       </section>
     </div>
+
+    <!-- ============================================================ JOURNAL -->
+    <div class="admin-grid" id="view-journal" hidden>
+      <aside>
+        <section class="panel">
+          <h2>Journal</h2>
+          <ul class="book-list entry-list" id="entry-list"></ul>
+          <button class="btn primary" id="new-entry-btn" style="width:100%">+ New entry</button>
+        </section>
+        <section class="panel">
+          <h2>Public or private?</h2>
+          <p class="muted" style="margin:0"><strong>Public</strong> entries appear in the Journal on your site after you push.<br><br>🔒 <strong>Private</strong> entries stay only on this computer, in the <code>private/</code> folder, and are never uploaded to GitHub. Back that folder up yourself if it matters to you.</p>
+        </section>
+      </aside>
+
+      <section>
+        <div class="panel" id="journal-welcome">
+          <h2>Dear journal…</h2>
+          <p class="muted">Write a new entry or pick one on the left. You can add pictures, headings, quotes, <strong>bold</strong> and <em>italic</em> text.</p>
+        </div>
+
+        <form class="panel" id="entry-form" hidden>
+          <div class="editor-head">
+            <input class="input title-input" id="entry-title" maxlength="200" placeholder="Title" aria-label="Title" required>
+            <div class="actions">
+              <label class="toggle"><input type="checkbox" id="entry-public"> <span id="entry-public-label">🔒 Private</span></label>
+              <a class="btn small" id="entry-view" target="_blank" rel="noopener" hidden>View</a>
+            </div>
+          </div>
+          <div class="field" style="max-width:220px"><label for="entry-date">Date</label><input class="input" type="date" id="entry-date"></div>
+          <div class="toolbar" role="toolbar" aria-label="Formatting">
+            <button type="button" data-fmt="bold" title="Bold (⌘B)"><strong>B</strong></button>
+            <button type="button" data-fmt="italic" title="Italic (⌘I)"><em>I</em></button>
+            <button type="button" data-fmt="heading" title="Heading">H</button>
+            <button type="button" data-fmt="quote" title="Quote">❝</button>
+            <label class="tool-btn" for="entry-image" title="Insert picture">🖼 Picture</label>
+            <input type="file" id="entry-image" accept="image/png,image/jpeg,image/webp,image/gif" class="visually-hidden">
+            <span class="spacer"></span>
+            <button type="button" id="entry-preview-btn" aria-pressed="false">Preview</button>
+          </div>
+          <textarea class="input entry-body" id="entry-body" placeholder="Today I painted…"></textarea>
+          <div class="prose entry-preview" id="entry-preview" hidden></div>
+          <div class="entry-actions">
+            <button class="btn primary" type="submit">Save entry</button>
+            <span class="muted small" id="entry-status"></span>
+            <span class="spacer"></span>
+            <button class="btn danger small" type="button" id="entry-delete">Delete entry</button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <!-- ============================================================ SETTINGS -->
+    <div class="settings-grid" id="view-settings" hidden>
+      <form class="panel" id="site-form">
+        <h2>Site details</h2>
+        <div class="field"><label for="site-title">Site name</label><input class="input" id="site-title" maxlength="120"></div>
+        <div class="field"><label for="site-tagline">Tagline</label><input class="input" id="site-tagline" maxlength="240"></div>
+        <div class="field"><label for="site-owner">Your name</label><input class="input" id="site-owner" maxlength="120"><span class="hint">Shown as "Stories &amp; illustrations by …" and in the footer.</span></div>
+        <div class="field"><label for="site-about">About you</label><textarea class="input" id="site-about" maxlength="4000" rows="6" placeholder="A few words about you and your stories. Leave empty to hide the About section."></textarea></div>
+        <button class="btn primary" type="submit">Save</button>
+      </form>
+
+      <section class="panel">
+        <h2>Background pictures</h2>
+        <p class="muted" style="margin-top:0">Each visit shows one of these at random. With none, a painted meadow is shown.</p>
+        <div class="bg-grid" id="bg-grid"></div>
+        <label class="btn small" for="bg-input">+ Add pictures…</label>
+        <input type="file" id="bg-input" multiple accept="image/png,image/jpeg,image/webp" class="visually-hidden">
+        <p class="hint muted">Use your own artwork, or free and public-domain images (Unsplash, Pexels, Wikimedia Commons).</p>
+      </section>
+
+      <form class="panel" id="comments-form">
+        <h2>Comments</h2>
+        <p class="muted" style="margin-top:0">Readers can leave anonymous comments on your stories and public journal entries. Comments are saved in a Google Sheet that only you control.</p>
+        <div class="field"><label for="site-comments">Comments link</label>
+          <input class="input" id="site-comments" placeholder="https://script.google.com/macros/s/…/exec"><span class="hint" id="comments-state"></span></div>
+        <button class="btn primary" type="submit">Save</button>
+        <details class="setup">
+          <summary>How to set up comments (5 minutes, one time)</summary>
+          <ol>
+            <li>Open <a href="https://sheets.new" target="_blank" rel="noopener">sheets.new</a> and name the sheet <em>Story comments</em>.</li>
+            <li>In the menu choose <strong>Extensions → Apps Script</strong>.</li>
+            <li>Delete what's there and paste everything from the file <code>comments/google-apps-script.js</code> in your project folder. Click <strong>Save</strong>.</li>
+            <li>Click <strong>Deploy → New deployment</strong>, click the gear and choose <strong>Web app</strong>. Set <em>Execute as: Me</em> and <em>Who has access: Anyone</em>, then <strong>Deploy</strong> and allow access.</li>
+            <li>Copy the <strong>Web app URL</strong> (it ends in <code>/exec</code>), paste it above, save, then commit and push.</li>
+          </ol>
+          <p class="muted">To remove a comment, delete its row in the sheet, or type anything in its <em>hidden</em> column.</p>
+        </details>
+      </form>
+
+      <section class="panel publish-note">
+        <h2>Publish online</h2>
+        <p class="muted" style="margin-top:0">After changing anything, push it to your live site:</p>
+        <pre class="input">git add -A
+git commit -m "Update site"
+git push</pre>
+      </section>
+    </div>
   </div>
+
+  <!-- ============================================================ PAGE MAKER -->
+  <dialog class="composer" id="composer" aria-labelledby="composer-title">
+    <form method="dialog" class="composer-inner" id="composer-form">
+      <div class="composer-canvas">
+        <canvas id="composer-canvas" width="900" height="1200"></canvas>
+        <label class="dropzone composer-pick" id="composer-pick" for="composer-file">
+          <strong>Choose a picture</strong>Your illustration becomes the page; then write on it.
+        </label>
+        <input type="file" id="composer-file" accept="image/png,image/jpeg,image/webp" class="visually-hidden">
+      </div>
+      <div class="composer-controls">
+        <h2 id="composer-title">Make a page with text</h2>
+        <div class="field"><label for="cm-text">Your words</label>
+          <textarea class="input" id="cm-text" rows="5" placeholder="Once upon a time…"></textarea></div>
+        <div class="row">
+          <div class="field"><label for="cm-font">Lettering</label>
+            <select class="input" id="cm-font">
+              <option value="Lora">Storybook serif</option>
+              <option value="Parisienne">Fairy-tale script</option>
+              <option value="Quicksand">Soft rounded</option>
+              <option value="Caveat">Handwritten</option>
+            </select></div>
+          <div class="field"><label for="cm-color">Text color</label><input class="input color-input" type="color" id="cm-color" value="#2f4a3a"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="cm-size">Size</label><input type="range" id="cm-size" min="2" max="10" step="0.25" value="4.25"></div>
+          <div class="field"><label for="cm-pos">Position (top ↔ bottom)</label><input type="range" id="cm-pos" min="0" max="100" value="6"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="cm-align">Alignment</label>
+            <select class="input" id="cm-align"><option value="center">Center</option><option value="left">Left</option><option value="right">Right</option></select></div>
+          <div class="field"><label for="cm-back">Behind the text</label>
+            <select class="input" id="cm-back">
+              <option value="box">Soft cream box</option>
+              <option value="band">Cream band (full width)</option>
+              <option value="glow">Soft glow only</option>
+              <option value="none">Nothing</option>
+            </select></div>
+        </div>
+        <div class="composer-actions">
+          <button class="btn" value="cancel" formnovalidate>Cancel</button>
+          <button class="btn primary" type="button" id="cm-save">Add page</button>
+        </div>
+      </div>
+    </form>
+  </dialog>
+
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="assets/sky.js?v=202611240434"></script>
-  <script src="assets/admin.js?v=202611240434"></script>
+  <script src="assets/sky.js?v=20261124045212"></script>
+  <script src="assets/markup.js?v=20261124045212"></script>
+  <script src="assets/admin.js?v=20261124045212"></script>
 </body>
 </html>

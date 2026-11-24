@@ -62,13 +62,17 @@
   scene.innerHTML = meadow();
   fetch("books/site.json", { cache: "no-cache" })
     .then((r) => (r.ok ? r.json() : {}))
-    .then((site) => { if (site.background) usePhoto("books/" + encodeURIComponent(site.background)); })
+    .then((site) => {
+      // A different picture from your collection on each visit.
+      const list = site.backgrounds || (site.background ? [site.background] : []);
+      if (list.length) usePhoto("books/" + encodeURIComponent(list[Math.floor(Math.random() * list.length)]));
+    })
     .catch(() => {});
   // The studio calls this right after you pick a new photo.
   window.storyshelfBackground = (url) => (url ? usePhoto(url) : ((scene.style.backgroundImage = ""), sky.classList.remove("has-photo"), (scene.innerHTML = meadow())));
 
   // ---- rising bubbles
-  const count = window.innerWidth < 600 ? 6 : 12;
+  const count = window.innerWidth < 600 ? 4 : 7;
   for (let i = 0; i < count; i++) {
     const b = document.createElement("span");
     b.className = "bubble";

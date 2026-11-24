@@ -1,29 +1,49 @@
 (function () {
   const shelf = document.getElementById("shelf");
   const empty = document.getElementById("empty");
+  const TYPES = { storybook: "Storybook", comic: "Comic", visual: "Visual story" };
   let books = [];
   let filter = "all";
-  document.getElementById("year").textContent = new Date().getFullYear();
 
-  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const link = (b) => (b.type === "visual" ? "story.html" : "read.html") + "?book=" + encodeURIComponent(b.id);
 
   function render() {
     const shown = books.filter((b) => filter === "all" || b.type === filter);
     empty.hidden = shown.length > 0;
-    if (!books.length) document.getElementById("empty-text").textContent = "The shelf is empty for now. New stories are on their way!";
-    else if (!shown.length) document.getElementById("empty-text").textContent = filter === "comic" ? "No comics yet." : "No storybooks yet.";
+    document.getElementById("empty-text").textContent = books.length
+      ? `No ${TYPES[filter] ? TYPES[filter].toLowerCase() + "s" : "stories"} yet.`
+      : "New stories are on their way.";
     shelf.innerHTML = shown.map((b) => `
-      <a class="book-card" href="read.html?book=${encodeURIComponent(b.id)}">
+      <a class="book-card" href="${link(b)}">
         <div class="cover" style="--ratio:${b.coverRatio || 0.75}">
           <img src="books/${encodeURIComponent(b.id)}/${encodeURIComponent(b.cover)}" alt="" loading="lazy">
         </div>
-        <h3>${esc(b.title)}</h3>
-        <div class="meta">
-          <span class="badge ${b.type === "comic" ? "comic" : ""}">${b.type === "comic" ? "Comic" : "Storybook"}</span>
-          <span>${b.author ? esc(b.author) + " · " : ""}${b.pageCount} pages</span>
+        <div class="book-info">
+          <span class="badge ${esc(b.type)}">${TYPES[b.type] || "Story"}</span>
+          <h3>${esc(b.title)}</h3>
+          ${b.description ? `<p class="desc">${esc(b.description)}</p>` : ""}
+          <p class="meta">${b.author ? esc(b.author) + " · " : ""}${b.pageCount} ${b.type === "visual" ? "scenes" : "pages"}</p>
         </div>
-        ${b.description ? `<p class="desc">${esc(b.description)}</p>` : ""}
       </a>`).join("");
+  }
+
+  // The newest story is shown beside the introduction.
+  function renderFeatured() {
+    const b = books[0];
+    const el = document.getElementById("featured");
+    if (!b) return;
+    el.href = link(b);
+    el.hidden = false;
+    document.querySelector(".hero").classList.add("has-featured");
+    el.innerHTML = `
+      <div class="featured-cover" style="--ratio:${b.coverRatio || 0.75}">
+        <img src="books/${encodeURIComponent(b.id)}/${encodeURIComponent(b.cover)}" alt="">
+      </div>
+      <div class="featured-caption">
+        <span class="eyebrow">Latest story</span>
+        <strong>${esc(b.title)}</strong>
+        <span class="text-link">Read now →</span>
+      </div>`;
   }
 
   document.querySelectorAll(".chip").forEach((chip) => {
@@ -34,21 +54,29 @@
     });
   });
 
-  fetch("books/site.json", { cache: "no-cache" }).then((r) => r.ok ? r.json() : null).then((site) => {
-    if (!site) return;
-    document.getElementById("site-title").textContent = site.siteTitle;
-    document.getElementById("site-tagline").textContent = site.tagline || "";
-    document.getElementById("footer-name").textContent = site.siteTitle;
-    if (site.owner) {
-      document.getElementById("owner").textContent = site.owner;
-      document.getElementById("footer-owner").textContent = site.owner;
-    }
-    document.getElementById("byline").hidden = !site.owner;
-    document.title = site.owner ? `${site.siteTitle} · ${site.owner}` : site.siteTitle;
-  }).catch(() => {});
-
   fetch("books/index.json", { cache: "no-cache" })
-    .then((r) => r.ok ? r.json() : { books: [] })
-    .then((data) => { books = data.books || []; render(); })
+    .then((r) => (r.ok ? r.json() : { books: [] }))
+    .then((data) => { books = data.books || []; render(); renderFeatured(); })
     .catch(() => { books = []; render(); });
+
+  // Latest journal entries
+  fetch("journal/index.json", { cache: "no-cache" })
+    .then((r) => (r.ok ? r.json() : { entries: [] }))
+    .then((data) => {
+      const entries = (data.entries || []).slice(0, 3);
+      if (!entries.length) return;
+      document.getElementById("journal-latest").hidden = false;
+      document.getElementById("latest").innerHTML = entries.map(journalCard).join("");
+    })
+    .catch(() => {});
+
+  window.siteReady.then((site) => {
+    if (site.siteTitle) document.title = site.owner ? `${site.siteTitle} · ${site.owner}` : site.siteTitle;
+    if (site.about) {
+      document.getElementById("about").hidden = false;
+      document.getElementById("about-text").innerHTML = window.esc(site.about).split(/\n\s*\n/).map((p) => `<p>${p.replace(/\n/g, "<br>")}</p>`).join("");
+      document.querySelectorAll("[data-if-about]").forEach((el) => (el.hidden = false));
+    }
+  });
 })();
+
