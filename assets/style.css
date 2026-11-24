@@ -965,3 +965,19 @@ body.site .dreamy-sky .scene { animation-duration: 60s; }
 .music-fab { background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow); backdrop-filter: none; -webkit-backdrop-filter: none; }
 @media (max-width: 600px) { .featured { display: none !important; } .hero { min-height: 0; } }
 .prose figure img { width: auto; max-width: 100%; max-height: 78vh; margin: 0 auto; display: block; }
+
+/* bubbles floating over the public pages */
+.bubble-layer { position: fixed; inset: 0; z-index: 35; overflow: hidden; pointer-events: none; }
+/* a faint rim so the bubbles also show on cream paper */
+.bubble { box-shadow: inset 0 0 6px rgb(255 255 255 / .5), inset 0 0 0 1px rgb(110 140 160 / .16); }
+@media (prefers-color-scheme: dark) { .bubble { box-shadow: inset 0 0 6px rgb(255 255 255 / .35), inset 0 0 0 1px rgb(220 235 255 / .14); } }
+.bubble-layer .bubble {
+  background:
+    radial-gradient(circle at 32% 28%, rgb(255 255 255 / .95) 0 7%, transparent 9%),
+    radial-gradient(circle at 68% 74%, rgb(255 255 255 / .5) 0 5%, transparent 8%),
+    radial-gradient(circle at 50% 50%, rgb(210 230 245 / .08) 52%, rgb(150 195 225 / .32) 70%, rgb(225 160 205 / .42) 84%, rgb(130 165 195 / .55) 100%);
+  box-shadow: inset 0 0 6px rgb(255 255 255 / .55), 0 0 0 1px rgb(110 140 165 / .22);
+}
+@media (prefers-color-scheme: dark) {
+  .bubble-layer .bubble { box-shadow: inset 0 0 6px rgb(255 255 255 / .35), 0 0 0 1px rgb(220 235 255 / .18); }
+}

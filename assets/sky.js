@@ -72,15 +72,24 @@
   window.storyshelfBackground = (url) => (url ? usePhoto(url) : ((scene.style.backgroundImage = ""), sky.classList.remove("has-photo"), (scene.innerHTML = meadow())));
 
   // ---- rising bubbles
-  const count = 0; // no floating bubbles: a calmer, more grown-up look
+  // On the public pages they float over everything (but never catch clicks);
+  // in the book reader and the studio they stay behind the content.
+  const overPage = document.body.classList.contains("site");
+  const layer = overPage ? document.createElement("div") : sky;
+  if (overPage) {
+    layer.className = "bubble-layer";
+    layer.setAttribute("aria-hidden", "true");
+    document.body.appendChild(layer);
+  }
+  const count = window.innerWidth < 600 ? 5 : 10;
   for (let i = 0; i < count; i++) {
     const b = document.createElement("span");
     b.className = "bubble";
-    const d = 18 + Math.random() * 16;
+    const d = 20 + Math.random() * 18;
     b.style.setProperty("--x", (Math.random() * 100).toFixed(1) + "vw");
     b.style.setProperty("--s", (14 + Math.random() * 34).toFixed(0) + "px");
     b.style.setProperty("--d", d.toFixed(1) + "s");
     b.style.setProperty("--delay", (-Math.random() * d).toFixed(1) + "s");
-    sky.appendChild(b);
+    layer.appendChild(b);
   }
 })();
