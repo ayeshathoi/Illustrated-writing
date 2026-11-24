@@ -72,7 +72,7 @@
   window.storyshelfBackground = (url) => (url ? usePhoto(url) : ((scene.style.backgroundImage = ""), sky.classList.remove("has-photo"), (scene.innerHTML = meadow())));
 
   // ---- rising bubbles
-  const count = window.innerWidth < 600 ? 4 : 7;
+  const count = 0; // no floating bubbles: a calmer, more grown-up look
   for (let i = 0; i < count; i++) {
     const b = document.createElement("span");
     b.className = "bubble";

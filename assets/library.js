@@ -40,9 +40,9 @@
         <img src="books/${encodeURIComponent(b.id)}/${encodeURIComponent(b.cover)}" alt="">
       </div>
       <div class="featured-caption">
-        <span class="eyebrow">Latest story</span>
+        <span class="eyebrow">Latest work</span>
         <strong>${esc(b.title)}</strong>
-        <span class="text-link">Read now →</span>
+        <span class="text-link">Read →</span>
       </div>`;
   }
 
